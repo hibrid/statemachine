@@ -110,7 +110,7 @@ The `StateMachine` object is central to managing state transitions. It provides 
    First, initialize a new `StateMachine` instance:
 
    ```go
-   stateMachine := statemachine.NewStateMachine()
+   stateMachine := statemachine.NewStateMachine("localhost:6379")
    ```
 
 2. **Logging Configuration**:
