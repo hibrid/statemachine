@@ -1,4 +1,4 @@
-package main
+package statemachine
 
 type CheckEventIDHandler struct {
 	next Handler
