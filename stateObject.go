@@ -18,6 +18,21 @@ type StateObject struct {
 	CommitFunc func() error                                     `json:"-"`
 }
 
+func NewStateObjectFromStruct(data interface{}, sm *StateMachine) *StateObject {
+	var state = &StateObject{
+		State:  SIMNotActivated, // or some other default state
+		Logger: fmt.Printf,
+	}
+	err := state.EncodeObjectToData(data)
+	if err != nil {
+		panic(err)
+	}
+	state.CommitFunc = func() error {
+		return state.actualCommitToDisk(sm)
+	}
+	return state
+}
+
 func NewStateObject(data map[string]interface{}, sm *StateMachine) *StateObject {
 	var state = &StateObject{
 		Data:   data,
@@ -82,4 +97,28 @@ func (so *StateObject) LogTransition(from, to string, sm *StateMachine) {
 func (so *StateObject) MarkProcessed() error {
 	so.State = "Processed"
 	return so.CommitToDisk()
+}
+
+// DecodeDataToObject decodes the Data field into an object passed as an argument.
+func (so *StateObject) DecodeDataToObject(obj interface{}) error {
+	bytes, err := json.Marshal(so.Data)
+	if err != nil {
+		return err
+	}
+	return json.Unmarshal(bytes, obj)
+}
+
+// EncodeObjectToData encodes an object passed as an argument into the Data field.
+func (so *StateObject) EncodeObjectToData(obj interface{}) error {
+	bytes, err := json.Marshal(obj)
+	if err != nil {
+		return err
+	}
+	var data map[string]interface{}
+	err = json.Unmarshal(bytes, &data)
+	if err != nil {
+		return err
+	}
+	so.Data = data
+	return nil
 }

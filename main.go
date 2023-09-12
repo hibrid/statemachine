@@ -30,6 +30,7 @@ var defaultConfig = HandlerConfig{
 	Telemetry:      true,
 	Alerting:       true,
 	MarkProcessed:  true,
+	Serializer:     JSONSerialization{},
 }
 
 func (sm *StateMachine) SetHandlerConfig(config HandlerConfig) {

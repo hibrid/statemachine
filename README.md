@@ -59,7 +59,7 @@ The `ManualReview` state is a special state that indicates a need for manual int
 ### Initialization
 
 ```go
-stateMachine := statemachine.NewStateMachine()
+stateMachine := statemachine.NewStateMachine("localhost:6379")
 ```
 
 ### Configuration
@@ -89,7 +89,7 @@ To handle a state transition:
 stateObject := statemachine.NewStateObject(map[string]interface{}{
     "PhoneNumber": "1234567890",
     "Carrier": "TelecomProvider",
-})
+}, stateMachine)
 err := stateObject.TransitionTo("NewState", "UniqueEventID", stateMachine)
 ```
 

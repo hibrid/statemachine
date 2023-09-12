@@ -1,6 +1,8 @@
 package statemachine
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 func Deserialize(data []byte) (*StateObject, error) {
 	var so StateObject

@@ -40,12 +40,18 @@ type Handler interface {
 	Next() Handler
 }
 
+type Serialization interface {
+	Serialize(*StateObject) ([]byte, error)
+	Deserialize([]byte) (*StateObject, error)
+}
+
 type HandlerConfig struct {
 	CheckEventID   bool
 	CheckProcessed bool
 	Telemetry      bool
 	Alerting       bool
 	MarkProcessed  bool
+	Serializer     Serialization
 }
 
 type StateTransitionLog struct {
