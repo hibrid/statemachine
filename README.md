@@ -101,10 +101,6 @@ The `CreateHandlerChain` function helps in creating a chain of handlers:
 handlerChainStart := statemachine.CreateHandlerChain(handler1, handler2, handler3)
 ```
 
-Absolutely, here's a dedicated section for configuring the `StateMachine` object:
-
----
-
 ### Configuring the StateMachine
 
 The `StateMachine` object is central to managing state transitions. It provides various configurations to tailor its behavior according to the application's needs. Here's how you can customize and configure your `StateMachine`:

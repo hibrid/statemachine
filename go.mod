@@ -1,4 +1,4 @@
-module git.mena.technology/statemachine
+module github.com/hibrid/statemachine
 
 go 1.21.0
 
