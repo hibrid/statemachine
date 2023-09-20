@@ -8,20 +8,22 @@ import (
 	"path/filepath"
 	"runtime"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type StateObject struct {
-	Data       map[string]interface{}                           `json:"data"`
-	State      string                                           `json:"state"`
-	EventID    string                                           `json:"eventID"`
-	Logger     func(format string, a ...any) (n int, err error) `json:"-"`
-	CommitFunc func() error                                     `json:"-"`
+	Data       map[string]interface{} `json:"data"`
+	State      string                 `json:"state"`
+	EventID    string                 `json:"eventID"`
+	Logger     *zap.Logger
+	CommitFunc func() error `json:"-"`
 }
 
-func NewStateObjectFromStruct(data interface{}, sm *StateMachine) *StateObject {
+func NewStateObjectFromStruct(data interface{}, sm *StateMachine, logger *zap.Logger) *StateObject {
 	var state = &StateObject{
 		State:  SIMNotActivated, // or some other default state
-		Logger: fmt.Printf,
+		Logger: logger,
 	}
 	err := state.EncodeObjectToData(data)
 	if err != nil {
@@ -33,11 +35,11 @@ func NewStateObjectFromStruct(data interface{}, sm *StateMachine) *StateObject {
 	return state
 }
 
-func NewStateObject(data map[string]interface{}, sm *StateMachine) *StateObject {
+func NewStateObject(data map[string]interface{}, sm *StateMachine, logger *zap.Logger) *StateObject {
 	var state = &StateObject{
 		Data:   data,
 		State:  SIMNotActivated, // or some other default state
-		Logger: fmt.Printf,
+		Logger: logger,
 	}
 	state.CommitFunc = func() error {
 		return state.actualCommitToDisk(sm)
@@ -80,17 +82,16 @@ func (so *StateObject) LogTransition(from, to string, sm *StateMachine) {
 		funcName := runtime.FuncForPC(pc).Name()
 
 		file = filepath.Base(file)
+		logStr := fmt.Sprintf("{timestamp: %s, event_id: %s, from_state: %s, to_state: %s, func: %s, file: %s, line: %d}\n",
+			log.Timestamp, log.EventID, log.FromState, log.ToState, funcName, file, line)
 		// Structured logging with debug info to stdout
-		so.Logger(
-			"{timestamp: %s, event_id: %s, from_state: %s, to_state: %s, func: %s, file: %s, line: %d}\n",
-			log.Timestamp, log.EventID, log.FromState, log.ToState, funcName, file, line,
-		)
+		so.Logger.Debug("log_transition", zap.String("transition", logStr))
 	} else {
 		// Structured logging without debug info
-		so.Logger(
-			"{timestamp: %s, event_id: %s, from_state: %s, to_state: %s}\n",
-			log.Timestamp, log.EventID, log.FromState, log.ToState,
-		)
+		logStr := fmt.Sprintf("{timestamp: %s, event_id: %s, from_state: %s, to_state: %s}\n",
+			log.Timestamp, log.EventID, log.FromState, log.ToState)
+		so.Logger.Debug("log_transition", zap.String("transition", logStr))
+
 	}
 }
 

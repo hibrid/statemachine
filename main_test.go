@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/go-redis/redis/v8"
+	"go.uber.org/zap/zaptest"
 )
 
 // Dummy Redis client for testing
@@ -128,9 +129,11 @@ func TestGenerateSignature(t *testing.T) {
 }
 
 func TestTransitionTo(t *testing.T) {
+	logger := zaptest.NewLogger(t)
+
 	sm := NewStateMachine("localhost:6379")
 	data := map[string]interface{}{"key": "value"}
-	so := NewStateObject(data, sm)
+	so := NewStateObject(data, sm, logger)
 	err := so.TransitionTo(sm, "ToState")
 	if err == nil {
 		t.Fatalf("Transition should fail due to no registered transitions")
